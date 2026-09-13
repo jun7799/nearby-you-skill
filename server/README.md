@@ -75,6 +75,26 @@ sqlite3 data/data.db "DELETE FROM profiles WHERE id='xxx';"
 
 内存固定窗口，重启清零：全局 30 次/分/IP（health 豁免），`nearby` / `geocode` / `ip-location` 额外各 10 次/分/IP，超限 429。
 
+## 用户数里程碑邮件提醒（可选）
+
+`notify_milestone.js` 由 cron 每 15 分钟调用，真实注册数（排除 `fake-` 测试数据）每跨过 5 的倍数给站长发一封邮件（QQ 邮箱 SMTP）。
+
+配置 `/home/ubuntu/.nearby-you-mail.conf`（600 权限，不进 git）：
+
+```
+EMAIL_USER=你的QQ号@qq.com
+EMAIL_PASS=QQ邮箱SMTP授权码（设置→账户→POP3/SMTP服务开启后生成，不是QQ密码）
+EMAIL_TO=接收提醒的邮箱
+```
+
+cron 条目（`crontab -e`）：
+
+```
+*/15 * * * * cd /home/ubuntu/nearby-you-api && node notify_milestone.js >> data/notify.log 2>&1
+```
+
+状态存 `data/milestone.state`，重复执行不会重复发信；配置缺失时静默跳过。
+
 ## 已知限制（设计取舍，非遗漏）
 
 1. **一个 IP 只能创建一条资料**——防灌水手段（按加盐哈希查重）；同一宽带/公司多设备共享公网 IP 会被拦，用户已知情接受
