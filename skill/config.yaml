@@ -1,0 +1,11 @@
+# nearby-you skill 配置(仅非敏感项;SSH 密码/高德 key 永远不出现在这里)
+api:
+  # 概念验证服务器(官方试玩入口,无 SLA 保证)。
+  # 想自己部署一套?改这里指向你的服务器,见仓库 server/README.md
+  base: http://124.221.77.217:3210
+  timeout: 10
+default:
+  radius_km: 50
+  limit: 10
+# identity_file 不配置时默认 ~/.nearby-you/identity.json(Windows/Linux 通用)
+# identity_file: "D:/你的路径/identity.json"

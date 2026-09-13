@@ -1,0 +1,8 @@
+# 跨平台行尾:sh 必须 LF(bash 不认 \r),ps1 固定 CRLF,其他交给 git
+*.sh text eol=lf
+*.py text eol=lf
+*.md text
+*.ps1 text eol=crlf
+*.yaml text
+*.js text
+*.json text

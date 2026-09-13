@@ -1,0 +1,14 @@
+# 个人部署工具(内含从本地密码文档读密码的逻辑,不随仓库分发;通用部署见 server/README.md)
+deploy_server.py
+
+# 运行时产物
+node_modules/
+data/
+__pycache__/
+*.pyc
+*.db
+*.db-wal
+*.db-shm
+
+# 本地身份(绝不入库)
+.nearby-you/
