@@ -8,9 +8,18 @@
 |---|---|
 | 项目路径 | `/home/ubuntu/nearby-you-api` |
 | pm2 进程名 | `nearby-you-api` |
-| 端口 | 3210（需在腾讯云控制台防火墙放行 TCP 3210；3000 被 thyroid-reader 占用，勿动） |
+| 端口 | HTTP 3210（IP 调试兜底）+ HTTPS 443（`https://nearby.baihehuakai666.asia`，防火墙两个都放行） |
 | 数据库 | `data/data.db`（SQLite，WAL 模式，运行时自动创建） |
 | 依赖 | express@4 + better-sqlite3（Node >= 16） |
+
+## HTTPS 证书（acme.sh + Cloudflare DNS-01）
+
+- 证书：Let's Encrypt，DNS-01 验证（不占 80 端口，大陆服务器未备案也可签发）
+- 文件：`certs/nearby.baihehuakai666.asia.key` + `certs/fullchain.cer`（不入 git）
+- 续期：acme.sh 定时任务自动续（60 天一续），续完自动 `pm2 restart nearby-you-api`（install-cert 时已挂 reloadcmd）
+- Cloudflare Token 存于 `~/.acme.sh/account.conf`（服务器文件，注意权限）
+- **node 升级后要重打 443 绑定权限**：`sudo setcap 'cap_net_bind_service=+ep' /usr/bin/node`
+- 证书未就位时服务自动降级为仅 HTTP 3210，不影响启动
 
 ## 常用命令
 
@@ -69,7 +78,7 @@ sqlite3 data/data.db "DELETE FROM profiles WHERE id='xxx';"
 ## 已知限制（设计取舍，非遗漏）
 
 1. **一个 IP 只能创建一条资料**——防灌水手段（按加盐哈希查重）；同一宽带/公司多设备共享公网 IP 会被拦，用户已知情接受
-2. **裸 HTTP**——secret/联系方式明文传输，先这样玩；后续可上 nginx + Let's Encrypt
+2. **裸 HTTP（自部署默认）**——官方服务器已上 HTTPS（DNS-01 证书，见上文）；自部署无域名时仍是 IP:3210 明文，传输层风险自担
 3. **本机 curl 测试**——服务器上 curl 时 req.ip 是 127.0.0.1，也只能建一条，测试用「建→删→再建」循环
 4. **ip-api 免费限流** 45 次/分钟——服务端已做 3s 超时 + 10 分钟缓存
 5. **坐标系**——库统一存 WGS-84；调高德前转 GCJ-02（`lib/geo.js`），不转地址偏 ~500m

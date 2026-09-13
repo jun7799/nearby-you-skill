@@ -57,8 +57,8 @@ cp -r nearby-you-skill/skill ~/.claude/skills/nearby-you
 
 1. 服务器（Node 16+）：`scp -r server/ you@your-server:/opt/nearby-you-api/`
 2. `npm install`，申请[高德 Web 服务 key](https://console.amap.com)（免费，可选——不配则只存坐标不显示中文地址）
-3. `AMAP_KEY=xxx pm2 start ecosystem.config.js`（端口 3210，防火墙放行）
-4. 把 skill 的 `config.yaml` 里 `api.base` 改成你的服务器
+3. `AMAP_KEY=xxx pm2 start ecosystem.config.js`（端口 3210，防火墙放行；有域名的话按 `server/README.md` 配 HTTPS）
+4. 把 skill 的 `config.yaml` 里 `api.base` 改成你的服务器（官方概念服务器走 `https://nearby.baihehuakai666.asia`）
 
 完整运维手册（含 secret 救援、限流说明、IP 哈希盐）：[server/README.md](server/README.md)
 

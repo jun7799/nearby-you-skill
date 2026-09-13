@@ -94,8 +94,21 @@ IDENTITY_PATH = CONFIG['identity_file']
 
 # ---------- HTTP ----------
 
-# 访问自家服务器不走系统代理(本机 Clash 等代理对非标端口可能 502)
-OPENER = urllib.request.build_opener(urllib.request.ProxyHandler({}))
+# 访问自家服务器不走系统代理(本机 Clash 等代理对非标端口可能 502);
+# CA 证书用 certifi(Windows 官方版 Python 不带 CA bundle,缺它 HTTPS 证书验证会炸,
+# 错误信息还常常误导性地报 certificate has expired);certifi 缺失时退回默认行为
+def _build_opener():
+    handlers = [urllib.request.ProxyHandler({})]
+    try:
+        import certifi
+        import ssl
+        handlers.append(urllib.request.HTTPSHandler(
+            context=ssl.create_default_context(cafile=certifi.where())))
+    except ImportError:
+        pass
+    return urllib.request.build_opener(*handlers)
+
+OPENER = _build_opener()
 
 
 def api(method, path, body=None, headers=None):

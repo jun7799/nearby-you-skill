@@ -320,6 +320,24 @@ app.use((e, req, res, next) => {
   err(res, e);
 });
 
+// ---- 启动：证书就位则同时开 HTTPS(443)；HTTP(3210) 始终保留(IP直连/调试/灰度兜底) ----
+// 证书由 acme.sh DNS-01 签发(见 README)，未就位时不影响原有 HTTP 服务
+const https = require('https');
+const fs = require('fs');
+const path = require('path');
+
+const CERT_DIR = process.env.CERT_DIR || path.join(__dirname, 'certs');
+const TLS_HOST = process.env.TLS_HOST || 'nearby.baihehuakai666.asia';
+const certKeyPath = path.join(CERT_DIR, `${TLS_HOST}.key`);
+const certChainPath = path.join(CERT_DIR, `fullchain.cer`);
+
 app.listen(PORT, () => {
-  console.log(`[OK] nearby-you-api 已启动，端口 ${PORT}，AMAP_KEY ${upstream.AMAP_KEY ? '已配置' : '未配置（仅存坐标，地址解析降级）'}`);
+  console.log(`[OK] nearby-you-api 已启动，HTTP 端口 ${PORT}，AMAP_KEY ${upstream.AMAP_KEY ? '已配置' : '未配置（仅存坐标，地址解析降级）'}`);
+  if (fs.existsSync(certKeyPath) && fs.existsSync(certChainPath)) {
+    https
+      .createServer({ key: fs.readFileSync(certKeyPath), cert: fs.readFileSync(certChainPath) }, app)
+      .listen(443, () => console.log(`[OK] HTTPS 443 已启用：https://${TLS_HOST}`));
+  } else {
+    console.log('[INFO] 证书未就位(certs/ 目录)，HTTPS 未启用，仅 HTTP');
+  }
 });

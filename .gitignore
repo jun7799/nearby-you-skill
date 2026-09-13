@@ -10,5 +10,8 @@ __pycache__/
 *.db-wal
 *.db-shm
 
+# TLS 证书(acme.sh 签发,绝不入库)
+server/certs/
+
 # 本地身份(绝不入库)
 .nearby-you/
